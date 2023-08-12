@@ -3,6 +3,7 @@ import MainLayout from "~/layouts/main-layout.vue";
 import CartItem from "~/components/cart-item.vue";
 import { useUserStore } from "~/stores/user";
 const userStore = useUserStore();
+const user = useSupabaseUser();
 
 let selectedArray = ref([]);
 
@@ -19,23 +20,6 @@ const totalPriceComputed = computed(() => {
   });
   return price / 100;
 });
-
-const products = [
-  {
-    id: 1,
-    title: "Title 1",
-    description: "kuay",
-    url: "https://picsum.photos/id/82/300/320",
-    price: 9999,
-  },
-  {
-    id: 2,
-    title: "Title 1",
-    description: "kuay",
-    url: "https://picsum.photos/id/83/300/320",
-    price: 9999,
-  },
-];
 
 const selectedRadioFunc = (e) => {
   if (!selectedArray.value.length) {
@@ -71,7 +55,7 @@ const goToCheckout = () => {
 <template>
   <MainLayout>
     <div id="ShoppingCartPage" class="mt-4 max-w-[1200px] mx-auto px-2">
-      <div v-if="!products.length" class="h-[500px] flex items-center justify-center">
+      <div v-if="!userStore.cart.length" class="h-[500px] flex items-center justify-center">
         <div class="pt-20">
           <img class="mx-auto" width="250" src="/cart-empty.png" />
 
@@ -92,7 +76,7 @@ const goToCheckout = () => {
         <div class="md:w-[65%]">
           <div class="bg-white rounded-lg p-4">
             <div class="text-2xl font-bold mb-2">
-              Shopping Cart ({{ products.length }})
+              Shopping Cart ({{ userStore.cart.length }})
             </div>
           </div>
 
@@ -103,7 +87,7 @@ const goToCheckout = () => {
           </div>
 
           <div id="Items" class="bg-white rounded-lg p-4 mt-4">
-            <div v-for="product in products">
+            <div v-for="product in userStore.cart">
               <CartItem
                 :product="product"
                 :selectedArray="selectedArray"

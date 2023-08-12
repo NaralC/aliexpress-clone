@@ -3,6 +3,8 @@ import MainLayout from "~/layouts/main-layout.vue";
 import { useUserStore } from "~/stores/user";
 const userStore = useUserStore();
 const route = useRoute();
+const client = useSupabaseClient()
+const user = useSupabaseUser()
 
 let stripe = null;
 let elements = null;
@@ -12,6 +14,24 @@ let total = ref(0);
 let clientSecret = null;
 let currentAddress = ref(null);
 let isProcessing = ref(false);
+
+onBeforeMount(async () => {
+    if (userStore.checkout.length < 1) {
+        return navigateTo('/shoppingcart')
+    }
+
+    total.value = 0.00
+    if (user.value) {
+        currentAddress.value = await useFetch(`/api/prisma/get-address-by-user/${user.value.id}`)
+        setTimeout(() => userStore.isLoading = false, 200)
+    }
+})
+
+watchEffect(() => {
+    if (route.fullPath == '/checkout' && !user.value) {
+        return navigateTo('/auth')
+    }
+})
 
 onMounted(() => {
   isProcessing.value = true;
@@ -33,24 +53,7 @@ watch(
 const stripeInit = async () => {};
 const pay = async () => {};
 const createOrder = async (stripeId) => {};
-const showError = async (msg) => {};
-
-const products = [
-  {
-    id: 1,
-    title: "Title 1",
-    description: "kuay",
-    url: "https://picsum.photos/id/82/300/320",
-    price: 9999,
-  },
-  {
-    id: 2,
-    title: "Title 1",
-    description: "kuay",
-    url: "https://picsum.photos/id/83/300/320",
-    price: 9999,
-  },
-];
+const showError = async (msg) => {}; 
 </script>
 
 <template>
@@ -61,7 +64,7 @@ const products = [
           <div class="bg-white rounded-lg p-4">
             <div class="text-xl font-semibold mb-2">Shipping Address</div>
 
-            <div v-if="false">
+            <div v-if="currentAddress">
               <NuxtLink
                 to="/address"
                 class="flex items-center pb-2 text-blue-500 hover:text-red-400"

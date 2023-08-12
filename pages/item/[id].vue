@@ -5,7 +5,14 @@ import { useUserStore } from "~/stores/user";
 
 const route = useRoute();
 const userStore = useUserStore();
-const currentImage = ref(null);
+let product = ref(null);
+let currentImage = ref(null);
+
+onBeforeMount(async () => {
+  product.value = await useFetch(
+    `/api/prisma/get-product-by-id/${route.params.id}`
+  );
+});
 
 watchEffect(() => {
   if (product.value && product.value.data) {
@@ -27,7 +34,11 @@ const isInCart = computed(() => {
 });
 
 const priceComputed = computed(() => {
-  return "26.40";
+  if (product.value && product.value.data) {
+    return product.value.data.price / 100;
+  }
+
+  return "0.00";
 });
 
 const images = ref([
@@ -40,7 +51,7 @@ const images = ref([
 ]);
 
 const addToCart = () => {
-  alert("ADDED BOI");
+  userStore.cart.push(product.value.data)
 };
 </script>
 
