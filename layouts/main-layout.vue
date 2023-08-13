@@ -10,6 +10,8 @@ let isSearching = ref(true);
 let isCartHover = ref(false);
 let items = ref(null);
 
+onMounted(() => isSearching.value = false)
+
 const searchByName = useDebounce(async () => {
   isSearching.value = true;
   items.value = await useFetch(
